@@ -79,7 +79,9 @@ RUN sed -i 's#DocumentRoot /var/www/html#DocumentRoot /var/www/html/public#' \
 
 EXPOSE 10000
 
-CMD sed -i "s/Listen 80/Listen ${PORT}/" /etc/apache2/ports.conf \
-    && sed -i "s/<VirtualHost \\:80>/<VirtualHost *:${PORT}>/" \
+CMD sed -i "s#^Listen 80#Listen ${PORT}#" /etc/apache2/ports.conf \
+    && sed -i -E "s#<VirtualHost \\*:[0-9]+>#<VirtualHost *:${PORT}>#" \
+        /etc/apache2/sites-available/000-default.conf \
+    && sed -i "s#^DocumentRoot .*#DocumentRoot ${APACHE_DOCUMENT_ROOT}#" \
         /etc/apache2/sites-available/000-default.conf \
     && exec apache2-foreground
